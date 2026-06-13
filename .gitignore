@@ -1,0 +1,11 @@
+.DS_Store
+
+# Internal booking backend and tests
+google-apps-script/
+tests/
+
+# Expose source files and generated documents
+assets/
+output/
+create_expose.py
+

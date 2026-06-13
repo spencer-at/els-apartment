@@ -22,9 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const formStatus = document.querySelector("#form-status");
   const requestId = document.querySelector("#request-id");
   const formStartedAt = document.querySelector("#form-started-at");
-  const standardRate = document.querySelector("#standard-rate");
-  const festivalRate = document.querySelector("#festival-rate");
-  const depositRate = document.querySelector("#deposit-rate");
+  const monthlyFromRate = document.querySelector("#monthly-from-rate");
   const submitButton = bookingForm?.querySelector(".booking-submit");
 
   window.addEventListener("scroll", () => {
@@ -65,6 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const endpoint = bookingForm.action;
   let latestQuote = null;
   let quoteRequestNumber = 0;
+  let submissionPending = false;
+  let submissionTimer = null;
 
   requestId.value = createRequestId();
   formStartedAt.value = String(Date.now());
@@ -115,6 +115,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     showFormStatus("pending", "Sending request", "Please keep this page open while we reserve your dates.");
+    submissionPending = true;
+    clearTimeout(submissionTimer);
+    submissionTimer = setTimeout(() => {
+      if (!submissionPending) return;
+      setSubmitting(false);
+      showFormStatus(
+        "pending",
+        "Request is being processed",
+        "The server has not returned a confirmation yet. Please do not submit again. We will preserve your booking reference as soon as the response arrives."
+      );
+    }, 20000);
     setSubmitting(true);
   });
 
@@ -122,15 +133,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!event.data || event.data.type !== "els-booking") return;
     if (event.origin && !/\.googleusercontent\.com$|^https:\/\/script\.google\.com$/.test(event.origin)) return;
 
+    submissionPending = false;
+    clearTimeout(submissionTimer);
     setSubmitting(false);
 
     if (event.data.success) {
       const bookingReference = event.data.bookingId
         ? ` Booking reference: ${event.data.bookingId}.`
         : "";
-      const emailConfirmation = event.data.emailSent
+      const emailConfirmation = event.data.emailSent === true
         ? " A confirmation email has been sent to you."
-        : " Your request was saved, but the confirmation email could not be sent. We will contact you directly.";
+        : event.data.emailSent === false
+          ? " Your request was saved, but the confirmation email could not be sent. We will contact you directly."
+          : "";
       showFormStatus(
         "success",
         "Request sent successfully",
@@ -147,6 +162,23 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       showFormStatus("error", "Request not sent", event.data.message);
     }
+  });
+
+  const resultFrame = document.querySelector(".booking-result-frame");
+  resultFrame?.addEventListener("load", () => {
+    if (!submissionPending) return;
+    setTimeout(() => {
+      if (!submissionPending) return;
+      submissionPending = false;
+      clearTimeout(submissionTimer);
+      setSubmitting(false);
+      showFormStatus(
+        "success",
+        "Request submitted",
+        "Your request reached the booking service. Please do not submit it again. We will contact you using the email address or phone number provided."
+      );
+      formStatus.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 1200);
   });
 
   function setSubmitting(submitting) {
@@ -177,13 +209,15 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadPricingConfig() {
     try {
       const config = await bookingApi(endpoint, { action: "config" });
-      standardRate.textContent = `${formatCurrency(config.baseNightlyRate, config.currency)} / night`;
-      festivalRate.textContent = `${formatCurrency(config.festivalNightlyRate, config.currency)} / night`;
-      depositRate.textContent = formatCurrency(config.deposit, config.currency);
+      const lowestNightlyRate = Math.min(config.baseNightlyRate, config.festivalNightlyRate);
+      monthlyFromRate.textContent = `From ${formatCurrency(lowestNightlyRate * 30, config.currency)} / month`;
     } catch (error) {
-      standardRate.textContent = `${formatCurrency(fallbackPricing.baseNightlyRate, fallbackPricing.currency)} / night`;
-      festivalRate.textContent = `${formatCurrency(fallbackPricing.festivalNightlyRate, fallbackPricing.currency)} / night`;
-      depositRate.textContent = formatCurrency(fallbackPricing.deposit, fallbackPricing.currency);
+      const lowestNightlyRate = Math.min(
+        fallbackPricing.baseNightlyRate,
+        fallbackPricing.festivalNightlyRate
+      );
+      monthlyFromRate.textContent =
+        `From ${formatCurrency(lowestNightlyRate * 30, fallbackPricing.currency)} / month`;
     }
   }
 

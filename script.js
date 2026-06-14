@@ -34,6 +34,10 @@ const copy = {
     maximumStay: "The maximum stay is six calendar months. Please check out by {date}.",
     staySummary: "{nights} nights · {start} to {end}",
     overlap: "These dates overlap an existing booking or temporary hold.",
+    invalidCodeTitle: "Booking code not applied",
+    invalidCodeMessage: "This booking code is invalid, inactive or not valid for the selected stay.",
+    discountCode: "Booking code {code}",
+    discount: "Discount",
     nights: "nights",
     cleaning: "Final cleaning",
     total: "Estimated accommodation total",
@@ -76,6 +80,10 @@ const copy = {
     maximumStay: "Der Höchstaufenthalt beträgt sechs Kalendermonate. Bitte reisen Sie spätestens am {date} ab.",
     staySummary: "{nights} Nächte · {start} bis {end}",
     overlap: "Diese Reisedaten überschneiden sich mit einer bestehenden Buchung oder vorläufigen Reservierung.",
+    invalidCodeTitle: "Buchungscode nicht angewendet",
+    invalidCodeMessage: "Dieser Buchungscode ist ungültig, inaktiv oder für den gewählten Aufenthalt nicht verwendbar.",
+    discountCode: "Buchungscode {code}",
+    discount: "Rabatt",
     nights: "Nächte",
     cleaning: "Endreinigung",
     total: "Voraussichtlicher Unterkunftspreis",
@@ -118,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const requestId = document.querySelector("#request-id");
   const formStartedAt = document.querySelector("#form-started-at");
   const monthlyFromRate = document.querySelector("#monthly-from-rate");
+  const bookingCode = document.querySelector("#booking-code");
   const submitButton = bookingForm?.querySelector(".booking-submit");
 
   window.addEventListener("scroll", () => {
@@ -162,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let quoteRequestNumber = 0;
   let submissionPending = false;
   let submissionTimer = null;
+  let codeUpdateTimer = null;
 
   requestId.value = createRequestId();
   formStartedAt.value = String(Date.now());
@@ -182,6 +192,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   checkOut.addEventListener("change", updateBookingEstimate);
+  bookingCode?.addEventListener("input", () => {
+    bookingCode.value = bookingCode.value.toUpperCase().replace(/[^A-Z0-9_-]/g, "");
+    clearTimeout(codeUpdateTimer);
+    codeUpdateTimer = setTimeout(updateBookingEstimate, 350);
+  });
 
   bookingForm.addEventListener("submit", (event) => {
     clearFormStatus();
@@ -208,6 +223,12 @@ document.addEventListener("DOMContentLoaded", () => {
           ? copy.unavailable
           : copy.liveRequired
       );
+      return;
+    }
+
+    if (latestQuote.codeValid === false) {
+      event.preventDefault();
+      showFormStatus("error", copy.invalidCodeTitle, copy.invalidCodeMessage);
       return;
     }
 
@@ -334,7 +355,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const quote = await bookingApi(endpoint, {
         action: "quote",
         checkIn: checkIn.value,
-        checkOut: checkOut.value
+        checkOut: checkOut.value,
+        bookingCode: bookingCode?.value || ""
       });
 
       if (currentRequest !== quoteRequestNumber) return;
@@ -405,6 +427,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderQuote(quote) {
+    if (quote.codeValid === false) {
+      priceSummary.className = "price-summary unavailable";
+      priceSummary.innerHTML =
+        `<strong>${escapeHtml(copy.invalidCodeTitle)}</strong>` +
+        `<p>${escapeHtml(copy.invalidCodeMessage)}</p>`;
+      return;
+    }
+
     if (!quote.available) {
       priceSummary.className = "price-summary unavailable";
       priceSummary.textContent = copy.overlap;
@@ -419,10 +449,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const cleaningLine = quote.cleaningFee > 0
       ? `<div class="price-line"><span>${copy.cleaning}</span><strong>${formatCurrency(quote.cleaningFee, quote.currency)}</strong></div>`
       : "";
+    const discountLine = quote.discount > 0
+      ? `<div class="price-line discount"><span>${escapeHtml(copy.discountCode.replace("{code}", quote.bookingCode))}</span>` +
+        `<strong>−${formatCurrency(quote.discount, quote.currency)}</strong></div>`
+      : "";
 
     priceSummary.className = "price-summary";
     priceSummary.innerHTML =
-      `<div class="price-breakdown">${lines}${cleaningLine}` +
+      `<div class="price-breakdown">${lines}${discountLine}${cleaningLine}` +
       `<div class="price-line total"><span>${copy.total}</span><strong>${formatCurrency(quote.total, quote.currency)}</strong></div>` +
       `<div class="price-line deposit"><span>${copy.deposit}</span><strong>${formatCurrency(quote.deposit, quote.currency)}</strong></div>` +
       `<p class="price-disclaimer">${copy.disclaimer}</p></div>`;
@@ -438,7 +472,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function quoteKey() {
-    return `${checkIn.value}|${checkOut.value}`;
+    return `${checkIn.value}|${checkOut.value}|${bookingCode?.value || ""}`;
   }
 });
 

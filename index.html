@@ -35,7 +35,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260614-2">
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
   <script type="application/ld+json">
   {
@@ -304,6 +304,17 @@
           </div>
 
           <label>
+            <span>Booking code <small>Optional</small></span>
+            <input
+              type="text"
+              id="booking-code"
+              name="bookingCode"
+              autocomplete="off"
+              maxlength="40"
+              placeholder="Enter your company or booking code">
+          </label>
+
+          <label>
             <span>Name</span>
             <input type="text" name="name" autocomplete="name" required>
           </label>
@@ -355,6 +366,6 @@
     <a href="#inquire">Check availability <i data-lucide="calendar-days"></i></a>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=20260614-2"></script>
 </body>
 </html>

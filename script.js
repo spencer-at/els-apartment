@@ -1,3 +1,92 @@
+const pageLanguage = document.documentElement.lang === "de" ? "de" : "en";
+
+const copy = {
+  en: {
+    menuOpen: "Open menu",
+    menuClose: "Close menu",
+    invalidStayTitle: "Request not sent",
+    invalidStay: "Please select a valid stay before submitting.",
+    priceRequiredTitle: "Price check required",
+    priceRequired: "Please wait until the current price and availability have been checked.",
+    unavailable: "These dates are not available. Please choose another period.",
+    liveRequired: "Live availability must be restored before this request can be submitted.",
+    sendingTitle: "Sending request",
+    sending: "Please keep this page open while we reserve your dates.",
+    processingTitle: "Request is being processed",
+    processing: "The server has not returned a confirmation yet. Please do not submit again. We will preserve your booking reference as soon as the response arrives.",
+    successTitle: "Request sent successfully",
+    successMessage: "Your booking request has been received.",
+    bookingReference: " Booking reference: {id}.",
+    emailSent: " A confirmation email has been sent to you.",
+    emailFailed: " Your request was saved, but the confirmation email could not be sent. We will contact you directly.",
+    failedTitle: "Request not sent",
+    failedMessage: "The request could not be completed. Please check your details and try again.",
+    submittedTitle: "Request submitted",
+    submitted: "Your request reached the booking service. Please do not submit it again. We will contact you using the email address or phone number provided.",
+    sendingButton: "Sending request…",
+    from: "From",
+    perMonth: "/ month",
+    selectDates: "Select your dates to calculate the stay.",
+    checking: "Checking live availability and price…",
+    selectCheckIn: "Select your check-in date first.",
+    chooseCheckOut: "Choose a check-out date between {min} and {max}.",
+    minimumStay: "The minimum stay is 29 nights. Your selection is {nights} nights.",
+    maximumStay: "The maximum stay is six calendar months. Please check out by {date}.",
+    staySummary: "{nights} nights · {start} to {end}",
+    overlap: "These dates overlap an existing booking or temporary hold.",
+    nights: "nights",
+    cleaning: "Final cleaning",
+    total: "Estimated accommodation total",
+    deposit: "Refundable deposit",
+    disclaimer: "The quote is recalculated and stored by the booking server when you submit.",
+    estimate: "Estimated price only. Live availability is temporarily unavailable.",
+    festivalRate: "July / August Festival rate",
+    standardRate: "Standard rate"
+  },
+  de: {
+    menuOpen: "Menü öffnen",
+    menuClose: "Menü schließen",
+    invalidStayTitle: "Anfrage nicht gesendet",
+    invalidStay: "Bitte wählen Sie vor dem Absenden einen gültigen Aufenthaltszeitraum.",
+    priceRequiredTitle: "Preisprüfung erforderlich",
+    priceRequired: "Bitte warten Sie, bis der aktuelle Preis und die Verfügbarkeit geprüft wurden.",
+    unavailable: "Diese Reisedaten sind nicht verfügbar. Bitte wählen Sie einen anderen Zeitraum.",
+    liveRequired: "Die Live-Verfügbarkeit muss wiederhergestellt sein, bevor die Anfrage gesendet werden kann.",
+    sendingTitle: "Anfrage wird gesendet",
+    sending: "Bitte lassen Sie diese Seite geöffnet, während wir Ihre Reisedaten vorläufig reservieren.",
+    processingTitle: "Anfrage wird verarbeitet",
+    processing: "Der Server hat noch keine Bestätigung zurückgegeben. Bitte senden Sie die Anfrage nicht erneut.",
+    successTitle: "Anfrage erfolgreich gesendet",
+    successMessage: "Ihre Buchungsanfrage ist bei uns eingegangen.",
+    bookingReference: " Buchungsreferenz: {id}.",
+    emailSent: " Eine Bestätigung wurde per E-Mail an Sie gesendet.",
+    emailFailed: " Ihre Anfrage wurde gespeichert, die Bestätigungs-E-Mail konnte jedoch nicht gesendet werden. Wir kontaktieren Sie direkt.",
+    failedTitle: "Anfrage nicht gesendet",
+    failedMessage: "Die Anfrage konnte nicht abgeschlossen werden. Bitte prüfen Sie Ihre Angaben und versuchen Sie es erneut.",
+    submittedTitle: "Anfrage übermittelt",
+    submitted: "Ihre Anfrage hat den Buchungsservice erreicht. Bitte senden Sie sie nicht erneut. Wir kontaktieren Sie über die angegebene E-Mail-Adresse oder Telefonnummer.",
+    sendingButton: "Anfrage wird gesendet…",
+    from: "Ab",
+    perMonth: "/ Monat",
+    selectDates: "Wählen Sie Ihre Reisedaten, um den Aufenthalt zu berechnen.",
+    checking: "Live-Verfügbarkeit und Preis werden geprüft…",
+    selectCheckIn: "Wählen Sie zuerst Ihr Anreisedatum.",
+    chooseCheckOut: "Wählen Sie ein Abreisedatum zwischen {min} und {max}.",
+    minimumStay: "Der Mindestaufenthalt beträgt 29 Nächte. Ihre Auswahl umfasst {nights} Nächte.",
+    maximumStay: "Der Höchstaufenthalt beträgt sechs Kalendermonate. Bitte reisen Sie spätestens am {date} ab.",
+    staySummary: "{nights} Nächte · {start} bis {end}",
+    overlap: "Diese Reisedaten überschneiden sich mit einer bestehenden Buchung oder vorläufigen Reservierung.",
+    nights: "Nächte",
+    cleaning: "Endreinigung",
+    total: "Voraussichtlicher Unterkunftspreis",
+    deposit: "Rückzahlbare Kaution",
+    disclaimer: "Das Angebot wird beim Absenden vom Buchungsserver neu berechnet und gespeichert.",
+    estimate: "Nur geschätzter Preis. Die Live-Verfügbarkeit ist vorübergehend nicht erreichbar.",
+    festivalRate: "Festspielpreis Juli / August",
+    standardRate: "Standardpreis"
+  }
+}[pageLanguage];
+
 document.addEventListener("DOMContentLoaded", () => {
   const fallbackPricing = {
     baseNightlyRate: 85,
@@ -11,6 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) {
     window.lucide.createIcons();
   }
+
+  document.querySelectorAll("[data-language]").forEach((link) => {
+    link.addEventListener("click", () => {
+      localStorage.setItem("els-language", link.dataset.language);
+    });
+  });
 
   const header = document.querySelector(".site-header");
   const menuButton = document.querySelector(".menu-button");
@@ -32,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
   menuButton.addEventListener("click", () => {
     const open = header.classList.toggle("open");
     menuButton.setAttribute("aria-expanded", String(open));
+    menuButton.setAttribute("aria-label", open ? copy.menuClose : copy.menuOpen);
     menuButton.innerHTML = open
       ? '<i data-lucide="x"></i>'
       : '<i data-lucide="menu"></i>';
@@ -42,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
     link.addEventListener("click", () => {
       header.classList.remove("open");
       menuButton.setAttribute("aria-expanded", "false");
+      menuButton.setAttribute("aria-label", copy.menuOpen);
       menuButton.innerHTML = '<i data-lucide="menu"></i>';
       if (window.lucide) window.lucide.createIcons();
     });
@@ -91,13 +188,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const validation = validateDates();
     if (!validation.valid) {
       event.preventDefault();
-      showFormStatus("error", "Request not sent", "Please select a valid stay before submitting.");
+      showFormStatus("error", copy.invalidStayTitle, copy.invalidStay);
       return;
     }
 
     if (!latestQuote || latestQuote.key !== quoteKey()) {
       event.preventDefault();
-      showFormStatus("error", "Price check required", "Please wait until the current price and availability have been checked.");
+      showFormStatus("error", copy.priceRequiredTitle, copy.priceRequired);
       updateBookingEstimate();
       return;
     }
@@ -106,15 +203,15 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
       showFormStatus(
         "error",
-        "Request not sent",
+        copy.invalidStayTitle,
         latestQuote.available === false
-          ? "These dates are not available. Please choose another period."
-          : "Live availability must be restored before this request can be submitted."
+          ? copy.unavailable
+          : copy.liveRequired
       );
       return;
     }
 
-    showFormStatus("pending", "Sending request", "Please keep this page open while we reserve your dates.");
+    showFormStatus("pending", copy.sendingTitle, copy.sending);
     submissionPending = true;
     clearTimeout(submissionTimer);
     submissionTimer = setTimeout(() => {
@@ -122,8 +219,8 @@ document.addEventListener("DOMContentLoaded", () => {
       setSubmitting(false);
       showFormStatus(
         "pending",
-        "Request is being processed",
-        "The server has not returned a confirmation yet. Please do not submit again. We will preserve your booking reference as soon as the response arrives."
+        copy.processingTitle,
+        copy.processing
       );
     }, 20000);
     setSubmitting(true);
@@ -139,17 +236,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (event.data.success) {
       const bookingReference = event.data.bookingId
-        ? ` Booking reference: ${event.data.bookingId}.`
+        ? copy.bookingReference.replace("{id}", event.data.bookingId)
         : "";
       const emailConfirmation = event.data.emailSent === true
-        ? " A confirmation email has been sent to you."
+        ? copy.emailSent
         : event.data.emailSent === false
-          ? " Your request was saved, but the confirmation email could not be sent. We will contact you directly."
+          ? copy.emailFailed
           : "";
       showFormStatus(
         "success",
-        "Request sent successfully",
-        `${event.data.message}${bookingReference}${emailConfirmation}`
+        copy.successTitle,
+        `${copy.successMessage}${bookingReference}${emailConfirmation}`
       );
       bookingForm.reset();
       requestId.value = createRequestId();
@@ -157,10 +254,10 @@ document.addEventListener("DOMContentLoaded", () => {
       checkOut.disabled = true;
       latestQuote = null;
       staySummary.className = "stay-summary";
-      staySummary.textContent = "Select your dates to calculate the stay.";
+      staySummary.textContent = copy.selectDates;
       priceSummary.hidden = true;
     } else {
-      showFormStatus("error", "Request not sent", event.data.message);
+      showFormStatus("error", copy.failedTitle, pageLanguage === "de" ? copy.failedMessage : event.data.message);
     }
   });
 
@@ -174,8 +271,8 @@ document.addEventListener("DOMContentLoaded", () => {
       setSubmitting(false);
       showFormStatus(
         "success",
-        "Request submitted",
-        "Your request reached the booking service. Please do not submit it again. We will contact you using the email address or phone number provided."
+        copy.submittedTitle,
+        copy.submitted
       );
       formStatus.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 1200);
@@ -185,7 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     submitButton.disabled = submitting;
     submitButton.classList.toggle("sending", submitting);
     submitButton.innerHTML = submitting
-      ? '<span>Sending request…</span><i data-lucide="loader-circle"></i>'
+      ? `<span>${escapeHtml(copy.sendingButton)}</span><i data-lucide="loader-circle"></i>`
       : `<span>${escapeHtml(submitButton.dataset.defaultLabel)}</span><i data-lucide="arrow-up-right"></i>`;
     if (window.lucide) window.lucide.createIcons();
   }
@@ -210,14 +307,14 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const config = await bookingApi(endpoint, { action: "config" });
       const lowestNightlyRate = Math.min(config.baseNightlyRate, config.festivalNightlyRate);
-      monthlyFromRate.textContent = `From ${formatCurrency(lowestNightlyRate * 30, config.currency)} / month`;
+      monthlyFromRate.textContent = `${copy.from} ${formatCurrency(lowestNightlyRate * 30, config.currency)} ${copy.perMonth}`;
     } catch (error) {
       const lowestNightlyRate = Math.min(
         fallbackPricing.baseNightlyRate,
         fallbackPricing.festivalNightlyRate
       );
       monthlyFromRate.textContent =
-        `From ${formatCurrency(lowestNightlyRate * 30, fallbackPricing.currency)} / month`;
+        `${copy.from} ${formatCurrency(lowestNightlyRate * 30, fallbackPricing.currency)} ${copy.perMonth}`;
     }
   }
 
@@ -231,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentRequest = ++quoteRequestNumber;
     priceSummary.hidden = false;
     priceSummary.className = "price-summary loading";
-    priceSummary.textContent = "Checking live availability and price…";
+    priceSummary.textContent = copy.checking;
 
     try {
       const quote = await bookingApi(endpoint, {
@@ -266,7 +363,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!checkIn.value) {
       checkOut.value = "";
       checkOut.disabled = true;
-      staySummary.textContent = "Select your check-in date first.";
+      staySummary.textContent = copy.selectCheckIn;
       return { valid: false };
     }
 
@@ -278,7 +375,9 @@ document.addEventListener("DOMContentLoaded", () => {
     checkOut.max = toDateInput(maximumEnd);
 
     if (!checkOut.value) {
-      staySummary.textContent = `Choose a check-out date between ${formatDate(minimumEnd)} and ${formatDate(maximumEnd)}.`;
+      staySummary.textContent = copy.chooseCheckOut
+        .replace("{min}", formatDate(minimumEnd))
+        .replace("{max}", formatDate(maximumEnd));
       return { valid: false };
     }
 
@@ -286,18 +385,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const nights = Math.round((end - start) / 86400000);
 
     if (end < minimumEnd) {
-      staySummary.textContent = `The minimum stay is 29 nights. Your selection is ${nights} nights.`;
+      staySummary.textContent = copy.minimumStay.replace("{nights}", nights);
       staySummary.classList.add("invalid");
       return { valid: false };
     }
 
     if (end > maximumEnd) {
-      staySummary.textContent = `The maximum stay is six calendar months. Please check out by ${formatDate(maximumEnd)}.`;
+      staySummary.textContent = copy.maximumStay.replace("{date}", formatDate(maximumEnd));
       staySummary.classList.add("invalid");
       return { valid: false };
     }
 
-    staySummary.textContent = `${nights} nights · ${formatDate(start)} to ${formatDate(end)}`;
+    staySummary.textContent = copy.staySummary
+      .replace("{nights}", nights)
+      .replace("{start}", formatDate(start))
+      .replace("{end}", formatDate(end));
     staySummary.classList.add("valid");
     return { valid: true, nights };
   }
@@ -305,25 +407,25 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderQuote(quote) {
     if (!quote.available) {
       priceSummary.className = "price-summary unavailable";
-      priceSummary.textContent = "These dates overlap an existing booking or temporary hold.";
+      priceSummary.textContent = copy.overlap;
       return;
     }
 
     const lines = quote.segments.map((segment) => (
-      `<div class="price-line"><span>${escapeHtml(segment.label)} · ${segment.nights} nights</span>` +
+      `<div class="price-line"><span>${escapeHtml(localizeRateLabel(segment.label))} · ${segment.nights} ${copy.nights}</span>` +
       `<strong>${formatCurrency(segment.subtotal, quote.currency)}</strong></div>`
     )).join("");
 
     const cleaningLine = quote.cleaningFee > 0
-      ? `<div class="price-line"><span>Final cleaning</span><strong>${formatCurrency(quote.cleaningFee, quote.currency)}</strong></div>`
+      ? `<div class="price-line"><span>${copy.cleaning}</span><strong>${formatCurrency(quote.cleaningFee, quote.currency)}</strong></div>`
       : "";
 
     priceSummary.className = "price-summary";
     priceSummary.innerHTML =
       `<div class="price-breakdown">${lines}${cleaningLine}` +
-      `<div class="price-line total"><span>Estimated accommodation total</span><strong>${formatCurrency(quote.total, quote.currency)}</strong></div>` +
-      `<div class="price-line deposit"><span>Refundable deposit</span><strong>${formatCurrency(quote.deposit, quote.currency)}</strong></div>` +
-      `<p class="price-disclaimer">The quote is recalculated and stored by the booking server when you submit.</p></div>`;
+      `<div class="price-line total"><span>${copy.total}</span><strong>${formatCurrency(quote.total, quote.currency)}</strong></div>` +
+      `<div class="price-line deposit"><span>${copy.deposit}</span><strong>${formatCurrency(quote.deposit, quote.currency)}</strong></div>` +
+      `<p class="price-disclaimer">${copy.disclaimer}</p></div>`;
   }
 
   function renderFallbackQuote(quote) {
@@ -331,7 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
     priceSummary.classList.add("estimate");
     priceSummary.insertAdjacentHTML(
       "afterbegin",
-      '<p class="price-warning">Estimated price only. Live availability is offline because the updated Google Apps Script has not yet been deployed.</p>'
+      `<p class="price-warning">${copy.estimate}</p>`
     );
   }
 
@@ -401,7 +503,7 @@ function addMonths(date, months) {
 }
 
 function formatDate(date) {
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat(pageLanguage === "de" ? "de-AT" : "en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric"
@@ -409,7 +511,7 @@ function formatDate(date) {
 }
 
 function formatCurrency(value, currency) {
-  return new Intl.NumberFormat("de-AT", {
+  return new Intl.NumberFormat(pageLanguage === "de" ? "de-AT" : "en-AT", {
     style: "currency",
     currency: currency || "EUR",
     maximumFractionDigits: 2
@@ -425,7 +527,7 @@ function calculateFallbackQuote(checkIn, checkOut, pricing) {
     const festival = pricing.festivalMonths.includes(current.getMonth() + 1);
     const rate = festival ? pricing.festivalNightlyRate : pricing.baseNightlyRate;
     const type = festival ? "festival" : "standard";
-    const label = festival ? "July / August Festival rate" : "Standard rate";
+    const label = festival ? copy.festivalRate : copy.standardRate;
     const lastSegment = segments[segments.length - 1];
 
     if (lastSegment?.type === type) {
@@ -448,6 +550,15 @@ function calculateFallbackQuote(checkIn, checkOut, pricing) {
     currency: pricing.currency,
     segments
   };
+}
+
+function localizeRateLabel(label) {
+  const normalized = String(label || "").toLowerCase();
+  if (normalized.includes("festival") || normalized.includes("july") || normalized.includes("august")) {
+    return copy.festivalRate;
+  }
+  if (normalized.includes("standard")) return copy.standardRate;
+  return label;
 }
 
 function createRequestId() {

@@ -6,6 +6,15 @@
   <meta name="description" content="Furnished 55 m² business apartment in Elsbethen near Salzburg for 29-night to 6-month stays. 5G Wi-Fi, full kitchen and 5–7 minutes from Red Bull Base.">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <meta name="theme-color" content="#263f32">
+  <script>
+    (() => {
+      const preferred = localStorage.getItem("els-language");
+      const browserLanguage = (navigator.language || "").toLowerCase();
+      if (preferred === "de" || (!preferred && browserLanguage.startsWith("de"))) {
+        window.location.replace("/de/" + window.location.hash);
+      }
+    })();
+  </script>
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_AT">
   <meta property="og:site_name" content="ELS_Apartment">
@@ -19,6 +28,9 @@
   <meta name="twitter:description" content="Corporate long-stay accommodation near Salzburg and Red Bull Base.">
   <title>Business Apartment Elsbethen near Salzburg | ELS_Apartment</title>
   <link rel="canonical" href="https://elsbethen-apartment.com/">
+  <link rel="alternate" hreflang="en" href="https://elsbethen-apartment.com/">
+  <link rel="alternate" hreflang="de" href="https://elsbethen-apartment.com/de/">
+  <link rel="alternate" hreflang="x-default" href="https://elsbethen-apartment.com/">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23263f32'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial' font-size='22' font-weight='700' fill='white'%3EELS%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,6 +86,10 @@
       <a href="#location">Location</a>
       <a href="#details">Details</a>
     </nav>
+    <div class="language-switcher" aria-label="Language selection">
+      <a href="/de/" lang="de" data-language="de">DE</a>
+      <a class="active" href="/" lang="en" data-language="en" aria-current="page">EN</a>
+    </div>
     <a class="button button-small button-dark" href="#inquire">Plan your stay</a>
     <button class="menu-button" aria-label="Open menu" aria-expanded="false">
       <i data-lucide="menu"></i>
@@ -211,6 +227,7 @@
         <div class="eyebrow"><span></span> Availability & booking request</div>
         <h2>Choose your dates.</h2>
         <p>Occupied periods are shown in the calendar. Requests must be for at least 29 nights and no longer than six calendar months. Your exact price is calculated for the selected dates.</p>
+        <p class="booking-contact">Questions before booking? <a href="mailto:hello@elsbethen-apartment.com">hello@elsbethen-apartment.com</a></p>
       </div>
 
       <div class="booking-layout">
@@ -246,7 +263,7 @@
           action="https://script.google.com/macros/s/AKfycbxKKGJCsjs-OVOAfY_7wXqmca9sQUWGIm-oLM4WYkEy-8tX5V9AXcwUU8PVCFfcVv-g9w/exec"
           method="post"
           target="booking-result-frame">
-          <input type="hidden" name="source" value="ELS_Apartment website">
+          <input type="hidden" name="source" value="ELS_Apartment website (English)">
           <input type="hidden" id="request-id" name="requestId">
           <input type="hidden" id="form-started-at" name="formStartedAt">
           <label class="form-trap" aria-hidden="true">
@@ -331,7 +348,10 @@
       <span class="brand-mark">ELS</span>
       <span><b>ELS_Apartment</b></span>
     </a>
-    <p>Furnished business accommodation in Elsbethen, Salzburg.</p>
+    <div class="footer-contact">
+      <p>Furnished business accommodation in Elsbethen, Salzburg.</p>
+      <a href="mailto:hello@elsbethen-apartment.com">hello@elsbethen-apartment.com</a>
+    </div>
     <a href="#inquire">Check availability <i data-lucide="calendar-days"></i></a>
   </footer>
 

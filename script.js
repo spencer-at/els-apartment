@@ -95,6 +95,42 @@ const copy = {
   }
 }[pageLanguage];
 
+const galleryPhotos = [
+  ["8745", "Bedroom with double bed and soft natural light", "Schlafzimmer mit Doppelbett und weichem Tageslicht"],
+  ["8942", "Lavender detail on the covered balcony", "Lavendel-Detail auf dem überdachten Balkon"],
+  ["8945", "Balcony table and seating for two", "Balkontisch und Sitzplätze für zwei"],
+  ["8956", "Covered balcony at ELS_Apartment", "Überdachter Balkon des ELS_Apartments"],
+  ["8905", "Microwave and compact kitchen appliances", "Mikrowelle und kompakte Küchengeräte"],
+  ["8909", "Nespresso machine, kettle and kitchen sink", "Nespresso-Maschine, Wasserkocher und Küchenspüle"],
+  ["8897", "Fully equipped kitchen with oven and refrigerator", "Voll ausgestattete Küche mit Backofen und Kühlschrank"],
+  ["8926", "Kitchen sink and practical cleaning supplies", "Küchenspüle und praktische Reinigungsutensilien"],
+  ["8941", "Cookware, knives and kitchen accessories", "Kochgeschirr, Messer und Küchenzubehör"],
+  ["8881", "Living room with Smart TV and soundbar", "Wohnzimmer mit Smart-TV und Soundbar"],
+  ["8919", "Built-in dishwasher in the kitchen", "Integrierter Geschirrspüler in der Küche"],
+  ["8921", "Glasses and tableware in the kitchen cabinets", "Gläser und Geschirr in den Küchenschränken"],
+  ["8958", "Glass shower enclosure in the bathroom", "Glasduschkabine im Badezimmer"],
+  ["8836", "Living room decor and warm ambient lighting", "Wohnzimmerdekoration und warme Beleuchtung"],
+  ["8826", "Convertible sofa and coffee table in the living room", "Schlafsofa und Couchtisch im Wohnzimmer"],
+  ["8853", "Dining area with seating for four", "Essbereich mit Sitzplätzen für vier Personen"],
+  ["8885", "Dining table set for a comfortable meal", "Gedeckter Esstisch für eine gemütliche Mahlzeit"],
+  ["8915", "Cookware and storage in the fitted kitchen", "Kochgeschirr und Stauraum in der Einbauküche"],
+  ["8959", "Bathroom with shower, washbasin and washing machine", "Badezimmer mit Dusche, Waschbecken und Waschmaschine"],
+  ["8842", "Bright furnished living room with convertible sofa", "Helles möbliertes Wohnzimmer mit Schlafsofa"],
+  ["8800", "Entrance storage with mirror and decorative details", "Stauraum im Eingangsbereich mit Spiegel und Dekoration"],
+  ["8747", "Double bed with bedside lighting", "Doppelbett mit Nachttischbeleuchtung"],
+  ["8975", "Walk-in shower fittings", "Armaturen der bodengleichen Dusche"],
+  ["8752", "Spacious bedroom with double bed and wardrobe", "Geräumiges Schlafzimmer mit Doppelbett und Kleiderschrank"],
+  ["8749", "Bedside table and reading lamp", "Nachttisch und Leselampe"],
+  ["8783", "Vacuum cleaner and iron provided", "Staubsauger und Bügeleisen inklusive"],
+  ["8806", "Welcoming entrance hall with storage", "Einladender Eingangsbereich mit Stauraum"],
+  ["8765", "Bedroom wardrobe with brass handles", "Schlafzimmerschrank mit Messinggriffen"],
+  ["8816", "Large entrance mirror and shoe cabinet", "Großer Eingangsspiegel und Schuhschrank"],
+  ["8772", "Generous wardrobe drawers and storage", "Großzügige Schubladen und Stauraum im Kleiderschrank"]
+].map(([id, en, de]) => ({
+  id,
+  caption: pageLanguage === "de" ? de : en
+}));
+
 document.addEventListener("DOMContentLoaded", () => {
   const fallbackPricing = {
     baseNightlyRate: 85,
@@ -163,6 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { threshold: 0.12 });
 
   document.querySelectorAll(".reveal").forEach((item) => observer.observe(item));
+
+  setupPhotoGallery();
 
   if (!bookingForm || !checkIn || !checkOut) return;
 
@@ -475,6 +513,129 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${checkIn.value}|${checkOut.value}|${bookingCode?.value || ""}`;
   }
 });
+
+function setupPhotoGallery() {
+  const lightbox = document.querySelector("#photo-lightbox");
+  const image = document.querySelector("#lightbox-image");
+  const caption = document.querySelector("#lightbox-caption");
+  const counter = document.querySelector("#lightbox-counter");
+  const thumbs = document.querySelector("#lightbox-thumbs");
+  const closeButton = lightbox?.querySelector(".lightbox-close");
+  const previousButton = lightbox?.querySelector(".lightbox-prev");
+  const nextButton = lightbox?.querySelector(".lightbox-next");
+
+  if (!lightbox || !image || !caption || !counter || !thumbs) return;
+
+  let currentIndex = 0;
+  let opener = null;
+  let thumbnailsBuilt = false;
+  let pointerStartX = null;
+
+  const fullPath = (photo) => `/images/gallery/full/pp-${photo.id}.webp`;
+  const thumbPath = (photo) => `/images/gallery/thumbs/pp-${photo.id}.webp`;
+
+  function normalizeIndex(index) {
+    return (index + galleryPhotos.length) % galleryPhotos.length;
+  }
+
+  function buildThumbnails() {
+    if (thumbnailsBuilt) return;
+    galleryPhotos.forEach((photo, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "lightbox-thumb";
+      button.dataset.index = String(index);
+      button.setAttribute(
+        "aria-label",
+        pageLanguage === "de" ? `Foto ${index + 1} anzeigen` : `Show photo ${index + 1}`
+      );
+      button.innerHTML = `<img src="${thumbPath(photo)}" alt="" loading="lazy" width="74" height="52">`;
+      button.addEventListener("click", () => showPhoto(index));
+      thumbs.appendChild(button);
+    });
+    thumbnailsBuilt = true;
+  }
+
+  function preloadAdjacent() {
+    [-1, 1].forEach((offset) => {
+      const preload = new Image();
+      preload.src = fullPath(galleryPhotos[normalizeIndex(currentIndex + offset)]);
+    });
+  }
+
+  function showPhoto(index) {
+    currentIndex = normalizeIndex(index);
+    const photo = galleryPhotos[currentIndex];
+    image.src = fullPath(photo);
+    image.alt = photo.caption;
+    caption.textContent = photo.caption;
+    counter.textContent = `${currentIndex + 1} / ${galleryPhotos.length}`;
+
+    thumbs.querySelectorAll(".lightbox-thumb").forEach((button) => {
+      const active = Number(button.dataset.index) === currentIndex;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-current", active ? "true" : "false");
+      if (active) button.scrollIntoView({ block: "nearest", inline: "center" });
+    });
+
+    preloadAdjacent();
+  }
+
+  function openGallery(index, trigger) {
+    opener = trigger;
+    buildThumbnails();
+    showPhoto(index);
+    lightbox.showModal();
+    document.body.classList.add("lightbox-open");
+    closeButton?.focus();
+  }
+
+  function closeGallery() {
+    lightbox.close();
+  }
+
+  document.querySelectorAll("[data-gallery-index]").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      openGallery(Number(trigger.dataset.galleryIndex) || 0, trigger);
+    });
+  });
+
+  closeButton?.addEventListener("click", closeGallery);
+  previousButton?.addEventListener("click", () => showPhoto(currentIndex - 1));
+  nextButton?.addEventListener("click", () => showPhoto(currentIndex + 1));
+
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) closeGallery();
+  });
+
+  lightbox.addEventListener("close", () => {
+    document.body.classList.remove("lightbox-open");
+    opener?.focus();
+  });
+
+  lightbox.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      showPhoto(currentIndex - 1);
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      showPhoto(currentIndex + 1);
+    }
+  });
+
+  lightbox.addEventListener("pointerdown", (event) => {
+    pointerStartX = event.clientX;
+  });
+
+  lightbox.addEventListener("pointerup", (event) => {
+    if (pointerStartX === null) return;
+    const distance = event.clientX - pointerStartX;
+    pointerStartX = null;
+    if (Math.abs(distance) < 60) return;
+    showPhoto(currentIndex + (distance < 0 ? 1 : -1));
+  });
+}
 
 function bookingApi(endpoint, parameters) {
   return new Promise((resolve, reject) => {

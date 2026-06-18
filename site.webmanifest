@@ -1,0 +1,16 @@
+{
+  "name": "ELS_Apartment",
+  "short_name": "ELS",
+  "description": "Furnished monthly business apartment in Elsbethen near Salzburg.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3f1ea",
+  "theme_color": "#263f32",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

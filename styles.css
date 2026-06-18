@@ -147,6 +147,13 @@ h2 { font-size: clamp(42px, 5vw, 72px); line-height: 1.03; letter-spacing: -.055
 .stay-grid strong { font-family: var(--display); font-size: 15px; }
 .fine-print { grid-column: 2; margin: -40px 0 0; color: #7a817b; font-size: 11px; }
 
+.faq { background: var(--cream); }
+.faq .section-heading > p { max-width: 650px; color: #657067; line-height: 1.7; }
+.faq-grid { display: grid; grid-template-columns: 1fr 1fr; margin-top: 58px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.faq-grid article { min-height: 210px; padding: 34px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.faq-grid h3 { margin: 0 0 14px; font-size: 19px; }
+.faq-grid p { margin: 0; color: #657067; font-size: 14px; line-height: 1.7; }
+
 .booking { background: var(--orange); }
 .booking-heading { max-width: 820px; color: white; }
 .booking-heading .eyebrow { color: rgba(255,255,255,.72); }
@@ -257,6 +264,7 @@ footer > a:last-child { display: flex; align-items: center; gap: 8px; }
   .gallery-stack { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
   .gallery-stack img { height: 320px; }
   .feature-grid { grid-template-columns: 1fr 1fr; }
+  .faq-grid { grid-template-columns: 1fr; }
   .location { grid-template-columns: 1fr; }
   .location-visual { min-height: 600px; }
   .fine-print { grid-column: 1; margin: -30px 0 0; }

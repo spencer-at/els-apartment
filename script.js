@@ -45,7 +45,9 @@ const copy = {
     disclaimer: "The quote is recalculated and stored by the booking server when you submit.",
     estimate: "Estimated price only. Live availability is temporarily unavailable.",
     festivalRate: "July / August Festival rate",
-    standardRate: "Standard rate"
+    standardRate: "Standard rate",
+    videoPause: "Pause background video",
+    videoPlay: "Play background video"
   },
   de: {
     menuOpen: "Menü öffnen",
@@ -91,7 +93,9 @@ const copy = {
     disclaimer: "Das Angebot wird beim Absenden vom Buchungsserver neu berechnet und gespeichert.",
     estimate: "Nur geschätzter Preis. Die Live-Verfügbarkeit ist vorübergehend nicht erreichbar.",
     festivalRate: "Festspielpreis Juli / August",
-    standardRate: "Standardpreis"
+    standardRate: "Standardpreis",
+    videoPause: "Hintergrundvideo pausieren",
+    videoPlay: "Hintergrundvideo abspielen"
   }
 }[pageLanguage];
 
@@ -165,6 +169,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const monthlyFromRate = document.querySelector("#monthly-from-rate");
   const bookingCode = document.querySelector("#booking-code");
   const submitButton = bookingForm?.querySelector(".booking-submit");
+  const heroVideo = document.querySelector(".hero-video");
+  const heroVideoControl = document.querySelector(".hero-video-control");
+
+  const setHeroVideoControl = (paused) => {
+    if (!heroVideoControl) return;
+    heroVideoControl.setAttribute("aria-pressed", String(paused));
+    heroVideoControl.setAttribute("aria-label", paused ? copy.videoPlay : copy.videoPause);
+    heroVideoControl.innerHTML = paused
+      ? '<i data-lucide="play"></i>'
+      : '<i data-lucide="pause"></i>';
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  if (heroVideo && heroVideoControl) {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduceMotion) {
+      heroVideo.pause();
+      setHeroVideoControl(true);
+    }
+
+    heroVideoControl.addEventListener("click", () => {
+      if (heroVideo.paused) {
+        heroVideo.play().then(() => setHeroVideoControl(false)).catch(() => setHeroVideoControl(true));
+      } else {
+        heroVideo.pause();
+        setHeroVideoControl(true);
+      }
+    });
+
+    heroVideo.addEventListener("play", () => setHeroVideoControl(false));
+    heroVideo.addEventListener("pause", () => setHeroVideoControl(true));
+  }
 
   window.addEventListener("scroll", () => {
     header.classList.toggle("scrolled", window.scrollY > 120);

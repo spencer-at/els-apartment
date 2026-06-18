@@ -38,7 +38,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260618-2">
+  <link rel="stylesheet" href="styles.css?v=20260618-3">
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
   <script type="application/ld+json">
   {
@@ -150,9 +150,13 @@
   <main id="top">
     <section class="hero">
       <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="/images/gallery/full/pp-8842.webp" aria-label="Video tour of ELS Apartment">
+        <source media="(max-width: 600px) and (orientation: portrait)" src="/media/els-apartment-mobile.m4v" type="video/mp4">
         <source src="ELS_WEB%20-%20SD%20480p.mov">
       </video>
       <div class="hero-shade"></div>
+      <button class="hero-video-control" type="button" aria-label="Pause background video" aria-pressed="false">
+        <i data-lucide="pause"></i>
+      </button>
       <div class="hero-content">
         <div class="eyebrow light"><span></span> Monthly corporate housing in Elsbethen</div>
         <h1>Furnished apartment<br>near Salzburg.</h1>
@@ -481,6 +485,6 @@
     <a href="#inquire">Check availability <i data-lucide="calendar-days"></i></a>
   </footer>
 
-  <script src="script.js?v=20260618-2"></script>
+  <script src="script.js?v=20260618-3"></script>
 </body>
 </html>

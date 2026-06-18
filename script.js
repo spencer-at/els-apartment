@@ -125,7 +125,8 @@ const galleryPhotos = [
   ["8806", "Welcoming entrance hall with storage", "Einladender Eingangsbereich mit Stauraum"],
   ["8765", "Bedroom wardrobe with brass handles", "Schlafzimmerschrank mit Messinggriffen"],
   ["8816", "Large entrance mirror and shoe cabinet", "Großer Eingangsspiegel und Schuhschrank"],
-  ["8772", "Generous wardrobe drawers and storage", "Großzügige Schubladen und Stauraum im Kleiderschrank"]
+  ["8772", "Generous wardrobe drawers and storage", "Großzügige Schubladen und Stauraum im Kleiderschrank"],
+  ["sofa-bed-double", "Convertible sofa prepared as a double bed for two guests", "Schlafsofa als Doppelbett für zwei Gäste vorbereitet"]
 ].map(([id, en, de]) => ({
   id,
   caption: pageLanguage === "de" ? de : en
